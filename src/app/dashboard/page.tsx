@@ -1,15 +1,22 @@
 // pages/dashboard.js
+"use client"
 import { useSession, signOut } from "next-auth/react";
-import { useRouter } from "next/router";
+import { useRouter } from "next/navigation";
+import { useEffect } from "react";
 
 const Dashboard = () => {
   const { data: session } = useSession();
   const router = useRouter();
 
+  useEffect(() => {
+    if (!session) {
+      // Redirect to login if no session exists
+      router.push("/auth/login");
+    }
+  }, [session, router]); 
+
   if (!session) {
-    // Redirect to login page if no session exists
-    router.push("/auth/login");
-    return null;
+    return <div>Loading...</div>; // You can show a loading state while the session is being checked
   }
 
   return (
