@@ -1,0 +1,236 @@
+To implement login with best practices, session management, and Axios in a Next.js 13+ app, we will follow these steps:
+
+API Integration with Axios for making requests.
+Session Management using HttpOnly Cookies to securely store the authentication token.
+Global Session Handling across the app to manage authentication status.
+Client-Side Login Flow with appropriate error handling.
+Steps Overview:
+Create a login form and submit credentials.
+Call API with Axios and handle responses.
+Store session in HttpOnly cookies for security.
+Protect routes using session check.
+Use Axios globally for API requests.
+1. Install Dependencies
+First, install the required libraries:
+
+Axios for making API calls.
+js-cookie (optional) for handling cookies on the client side.
+bash
+Copy
+npm install axios js-cookie
+2. Set up Axios with Interceptors
+Create an Axios instance with interceptors that automatically attach the token stored in cookies to every request and handle errors globally.
+
+Create an Axios instance (lib/axios.js)
+js
+Copy
+// lib/axios.js
+
+import axios from "axios";
+import Cookies from "js-cookie";
+
+// Create Axios instance
+const axiosInstance = axios.create({
+  baseURL: "http://localhost:8000/api/v1", // Adjust the base URL of your API
+  headers: {
+    "Content-Type": "application/json",
+  },
+});
+
+// Add request interceptor to add the token from cookies to the headers
+axiosInstance.interceptors.request.use(
+  (config) => {
+    const token = Cookies.get("token");
+    if (token) {
+      config.headers["Authorization"] = `Bearer ${token}`;
+    }
+    return config;
+  },
+  (error) => {
+    return Promise.reject(error);
+  }
+);
+
+// Add response interceptor for global error handling (e.g., token expiration)
+axiosInstance.interceptors.response.use(
+  (response) => response,
+  (error) => {
+    if (error.response && error.response.status === 401) {
+      // Token expired or unauthorized, redirect to login
+      window.location.href = "/auth/login";
+    }
+    return Promise.reject(error);
+  }
+);
+
+export default axiosInstance;
+3. Set up Login Flow
+Login Component
+Create a login form that sends credentials to the API and stores the token in an HttpOnly cookie for security.
+
+tsx
+Copy
+// app/auth/login/page.tsx
+"use client";
+
+import { useState } from "react";
+import { useRouter } from "next/navigation";
+import axiosInstance from "../../lib/axios"; // Import the Axios instance
+
+const Login = () => {
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [error, setError] = useState<string | null>(null);
+  const router = useRouter();
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+
+    setError(null);
+
+    try {
+      const response = await axiosInstance.post("/auth/login", {
+        email,
+        password,
+      });
+
+      // On successful login, save the token in HttpOnly cookies
+      const { token, user } = response.data;
+
+      // Set the token in cookies (with HttpOnly flag set by the server)
+      document.cookie = `token=${token}; path=/; secure; HttpOnly; SameSite=Strict`;
+
+      // Optionally, store user data in localStorage or sessionStorage
+      sessionStorage.setItem("user", JSON.stringify(user));
+
+      // Redirect to a protected route (e.g., Dashboard)
+      router.push("/dashboard");
+    } catch (err) {
+      setError("Invalid email or password");
+    }
+  };
+
+  return (
+    <div>
+      <h1>Login</h1>
+      <form onSubmit={handleSubmit}>
+        <div>
+          <label>Email</label>
+          <input
+            type="email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            required
+          />
+        </div>
+        <div>
+          <label>Password</label>
+          <input
+            type="password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            required
+          />
+        </div>
+        {error && <div style={{ color: "red" }}>{error}</div>}
+        <button type="submit">Login</button>
+      </form>
+    </div>
+  );
+};
+
+export default Login;
+4. Session Handling
+On successful login, the backend will set the token as an HttpOnly cookie. HttpOnly cookies are secure and are not accessible via JavaScript, making them safer than using localStorage.
+
+To validate the session on subsequent API requests, we will check for the token in the cookies. Axios will automatically include the token with each request via the interceptor.
+
+Dashboard (Protected Route)
+Protect pages like the dashboard by checking if the user is authenticated (i.e., checking the cookie for a valid token).
+
+tsx
+Copy
+// app/dashboard/page.tsx
+"use client";
+
+import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
+
+const Dashboard = () => {
+  const [user, setUser] = useState<any>(null);
+  const [loading, setLoading] = useState(true);
+  const router = useRouter();
+
+  useEffect(() => {
+    // Check for token in cookies (should be validated server-side)
+    const token = document.cookie
+      .split("; ")
+      .find((row) => row.startsWith("token="))
+      ?.split("=")[1];
+
+    if (!token) {
+      // Redirect to login if no token found
+      router.push("/auth/login");
+      return;
+    }
+
+    // Optionally, fetch user data or use session info stored earlier
+    const storedUser = sessionStorage.getItem("user");
+    if (storedUser) {
+      setUser(JSON.parse(storedUser));
+      setLoading(false);
+    } else {
+      // Handle session expiration or error
+      router.push("/auth/login");
+    }
+  }, [router]);
+
+  if (loading) return <div>Loading...</div>;
+
+  return (
+    <div>
+      <h1>Welcome, {user?.name}</h1>
+      <p>Email: {user?.email}</p>
+      <button
+        onClick={() => {
+          // Clear session and cookies on logout
+          document.cookie = "token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 UTC;";
+          sessionStorage.removeItem("user");
+          router.push("/auth/login");
+        }}
+      >
+        Logout
+      </button>
+    </div>
+  );
+};
+
+export default Dashboard;
+5. Server-Side: Set HttpOnly Cookies (Backend)
+In your backend (Laravel or any backend), ensure that the login API response sets the token as an HttpOnly cookie. Here’s an example for Laravel:
+
+php
+Copy
+// Backend: Laravel Example
+
+public function login(Request $request)
+{
+    $credentials = $request->only('email', 'password');
+
+    if (Auth::attempt($credentials)) {
+        $user = Auth::user();
+        $token = $user->createToken('YourApp')->plainTextToken;
+
+        return response()->json([
+            'status' => 200,
+            'message' => 'User logged in successfully',
+            'user' => $user,
+            'token' => $token,
+        ])->cookie('token', $token, 60, '/', null, true, true); // Set token as HttpOnly cookie
+    }
+
+    return response()->json([
+        'message' => 'Invalid email or password',
+    ], 401);
+}
+6. Summary
