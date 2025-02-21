@@ -1,9 +1,7 @@
-// src/app/auth/login/page.tsx
-
-"use client"; // Marks this file as a client-side component
+"use client"; 
 
 import { useState } from "react";
-import { useRouter } from "next/navigation"; // Use this in the App Directory
+import { useRouter } from "next/navigation"; 
 import { signIn } from "next-auth/react";
 
 const LoginPage = () => {
@@ -16,7 +14,7 @@ const LoginPage = () => {
     e.preventDefault();
 
     const result = await signIn("credentials", {
-      redirect: false, // Prevent redirect after login
+      redirect: false, 
       email,
       password,
     });
@@ -24,7 +22,7 @@ const LoginPage = () => {
     if (result?.error) {
       setError("Invalid credentials");
     } else {
-      router.push("/dashboard"); // Redirect after successful login
+      router.push("/dashboard"); 
     }
   };
 
