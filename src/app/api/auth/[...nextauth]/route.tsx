@@ -1,5 +1,3 @@
-// app/api/auth/[...nextauth]/route.js
-
 import NextAuth from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
 
@@ -23,7 +21,7 @@ const handler = NextAuth({
     }),
   ],
   session: {
-    strategy: "jwt", // Use JWT tokens for session management
+    strategy: "jwt", 
   },
   callbacks: {
     async jwt({ token, user }) {
