@@ -27,7 +27,7 @@ export default function MarketingLayout({
       >
       <SessionProvider>
         <Navbar/>
-        <div className="container mx-auto p-4 pt-6 md:p-6 lg:p-8 h-screen">
+        <div className="container mx-auto p-4 pt-6 md:p-6 lg:p-8 h-full">
           {children}
         </div>
         <Footer/>
