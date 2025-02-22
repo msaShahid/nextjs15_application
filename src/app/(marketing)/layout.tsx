@@ -1,5 +1,5 @@
 "use client";
-import '../app/globals.css';
+import '../../app/style/globals.css';
 import { Geist, Geist_Mono } from "next/font/google";
 import { SessionProvider } from "next-auth/react";
 import Navbar from "@/components/Navbar";
