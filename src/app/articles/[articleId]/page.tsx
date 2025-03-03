@@ -1,14 +1,16 @@
+"use client"
 import Link from "next/link";
+import {use} from "react";
 
-export default async function NewArticle({
+export default function NewArticle({
   params,
   searchParams,
 }: {
   params: Promise< { articleId: string }>;
   searchParams: Promise< { lang?: "en" | "fr" | "sp" }>;
 }) {
-  const { articleId } = await params;
-  const { lang = "en" } = await searchParams; 
+  const { articleId } =  use(params);
+  const { lang = "en" } = use(searchParams) ; 
 
   const availableLanguages = ["en", "fr", "sp"]; 
 
