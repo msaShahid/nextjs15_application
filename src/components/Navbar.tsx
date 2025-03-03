@@ -19,7 +19,7 @@ const Navbar = () => {
             <Link href="/about">About</Link>
           </li>
           <li>
-            <Link href="/services">Services</Link>
+            <Link href="/service">Services</Link>
           </li>
           <li>
             <Link href="/contact">Contact</Link>
@@ -31,7 +31,7 @@ const Navbar = () => {
               <button onClick={() => signOut()}>Logout</button>
             </>
           ) : (
-            <Link href="/auth/login">Login</Link>
+            <Link href="/login">Login</Link>
           )}
         </li>
         </ul>
