@@ -4,11 +4,11 @@ export default async function NewArticle({
   params,
   searchParams,
 }: {
-  params: { articleId: string };
-  searchParams: { lang?: "en" | "fr" | "sp" };
+  params: Promise< { articleId: string }>;
+  searchParams: Promise< { lang?: "en" | "fr" | "sp" }>;
 }) {
-  const { articleId } = params;
-  const { lang = "en" } = searchParams; 
+  const { articleId } = await params;
+  const { lang = "en" } = await searchParams; 
 
   const availableLanguages = ["en", "fr", "sp"]; 
 
