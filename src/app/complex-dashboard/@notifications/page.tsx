@@ -1,7 +1,7 @@
 export default function Notifications(){
     return(
         <>
-        <h1>Notification</h1>
+        <h2 className="text-xl font-semibold">Notification</h2>
         </>
     )
 }

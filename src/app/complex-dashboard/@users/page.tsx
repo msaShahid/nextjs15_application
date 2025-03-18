@@ -1,7 +1,7 @@
 export default function UsersAnalytics(){
     return(
         <>
-        <h1>User Analytics</h1>
+        <h2 className="text-xl font-semibold">User</h2>
         </>
     )
 }
