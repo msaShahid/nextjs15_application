@@ -5,14 +5,17 @@ export default function ComplexDashboardLayout({
     users,
     revenue,
     notifications,
+    login,
   }: {
     children: React.ReactNode;
     users: React.ReactNode;
     revenue: React.ReactNode;
     notifications: React.ReactNode;
+    login: React.ReactNode;
   }) {
     
-    return (
+    const isLoggedIn = true;
+    return isLoggedIn ? (
       <div className="space-y-6 mx-6"> 
 
         <div className="p-4 mt-5 text-center font-bold text-lime-500 text-[50px] bg-white shadow-md rounded-lg">{children}</div> 
@@ -38,5 +41,9 @@ export default function ComplexDashboardLayout({
         </div>
         
       </div>
-    ) 
+    ) : (
+      <div className="space-y-6 mx-6">
+        {login}
+      </div>
+    );
   }
