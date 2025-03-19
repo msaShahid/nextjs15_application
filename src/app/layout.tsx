@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import './style/globals.css'
+import Navbar from "@/components/Navbar";
+import Footer from "@/components/Footer";
 //import { ErrorWrapper } from "./error-wrapper";
 
 const geistSans = Geist({
@@ -29,8 +31,19 @@ export default function RootLayout({
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
         {/* <ErrorWrapper> */}
-        {children}
+        <Navbar/>
+        <>
+        <div className="h-screen">
+          <div className="flex flex-col h-full mx-6 mt-5">
+          {children}
+          </div>
+          
+        </div>
+        
+        </>
+        
         {/* </ErrorWrapper> */}
+        <Footer/>
       </body>
     </html>
 

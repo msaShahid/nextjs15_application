@@ -1,10 +1,10 @@
 "use client";
-import { useSession, signOut } from "next-auth/react";
+//import { useSession, signOut } from "next-auth/react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 
 const Navbar = () => {
-  const { data: session } = useSession();
+ // const { data: session } = useSession();
   const pathname = usePathname();
 
   const isActive = (href: string) => pathname === href || (pathname.startsWith(href) && href !== "/");
@@ -38,7 +38,7 @@ const Navbar = () => {
               Contact
             </Link>
           </li>
-          <li>
+          {/* <li>
             {session ? (
               <>
                 <span className="mr-4">Welcome, {session.user?.name || "User"}</span>
@@ -54,7 +54,7 @@ const Navbar = () => {
                 Login
               </Link>
             )}
-          </li>
+          </li> */}
         </ul>
       </div>
     </nav>
